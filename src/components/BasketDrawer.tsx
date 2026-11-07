@@ -1,9 +1,9 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { BasketAnalysis, BasketItem } from '@/types';
 import { PROVIDER_METADATA } from '@/core/engine/geo-resolver';
-import { X, Trash2, Plus, Minus, ArrowRight, Zap, Sparkles, AlertCircle, ShoppingBag } from 'lucide-react';
+import { X, Trash2, Plus, Minus, ArrowRight, Zap, Sparkles, AlertCircle, ShoppingBag, Share2, Copy, Check } from 'lucide-react';
 
 interface BasketDrawerProps {
   isOpen: boolean;
@@ -24,10 +24,52 @@ export const BasketDrawer: React.FC<BasketDrawerProps> = ({
   onRemoveItem,
   onClearBasket,
 }) => {
+  const [copied, setCopied] = useState(false);
+
   if (!isOpen) return null;
 
   const bestSingle = analysis?.bestSingleStore;
   const splitCart = analysis?.splitCartOption;
+
+  const generateShareText = () => {
+    if (!analysis || !bestSingle) return '';
+
+    let text = `🛒 *QuickBuy 10M Grocery Price Comparison*\n\n`;
+    text += `📦 *Items (${items.length}):*\n`;
+    items.forEach((item, idx) => {
+      text += `${idx + 1}. ${item.canonicalProduct.canonicalTitle} (${item.canonicalProduct.displayPackSize}) x${item.quantity}\n`;
+    });
+
+    text += `\n🏆 *Lowest Price Store: ${bestSingle.providerName}*\n`;
+    text += `• Items Total: ₹${bestSingle.itemsSubtotal}\n`;
+    text += `• Delivery Fee: ${bestSingle.deliveryFee === 0 ? 'FREE' : `₹${bestSingle.deliveryFee}`}\n`;
+    text += `• Total Landed Cost: *₹${bestSingle.totalLandedCost}* (ETA: ~${bestSingle.etaMinutes} mins)\n\n`;
+
+    text += `📊 *Price Breakdown Across Apps:*\n`;
+    analysis.singleStoreOptions.forEach((s) => {
+      text += `• ${s.providerName}: ₹${s.totalLandedCost} ${s.provider === bestSingle.provider ? '🥇 (Cheapest)' : ''}\n`;
+    });
+
+    if (splitCart && splitCart.isRecommended) {
+      text += `\n💡 *Split-Cart Tip:* Split between ${splitCart.orders.map(o => o.provider).join(' & ')} to save ₹${splitCart.netSavingsComparedToBestSingle} more!\n`;
+    }
+
+    text += `\nCompare live on QuickBuy: http://localhost:3000`;
+    return text;
+  };
+
+  const handleShareWhatsApp = () => {
+    const text = generateShareText();
+    const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+    window.open(url, '_blank');
+  };
+
+  const handleCopySummary = () => {
+    const text = generateShareText();
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   return (
     <div className="fixed inset-0 z-50 overflow-hidden">
@@ -299,8 +341,29 @@ export const BasketDrawer: React.FC<BasketDrawerProps> = ({
 
           {/* Footer Bottom Bar */}
           {items.length > 0 && bestSingle && (
-            <div className="p-4 border-t border-gray-200 bg-gray-50">
-              <div className="flex items-center justify-between mb-2">
+            <div className="p-4 border-t border-gray-200 bg-gray-50 space-y-2.5">
+              {/* WhatsApp Share & Copy Bar */}
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleShareWhatsApp}
+                  className="flex-1 py-1.5 px-3 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 text-emerald-800 rounded-xl text-xs font-bold transition-colors flex items-center justify-center gap-1.5"
+                  title="Share breakdown on WhatsApp"
+                >
+                  <Share2 className="w-3.5 h-3.5" />
+                  <span>Share on WhatsApp</span>
+                </button>
+
+                <button
+                  onClick={handleCopySummary}
+                  className="py-1.5 px-3 bg-white hover:bg-gray-100 border border-gray-200 text-gray-700 rounded-xl text-xs font-bold transition-colors flex items-center justify-center gap-1.5"
+                  title="Copy breakdown text"
+                >
+                  {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                  <span>{copied ? 'Copied!' : 'Copy'}</span>
+                </button>
+              </div>
+
+              <div className="flex items-center justify-between">
                 <div>
                   <div className="text-[10px] uppercase font-bold text-gray-500">
                     Cheapest Checkout ({bestSingle.providerName})
