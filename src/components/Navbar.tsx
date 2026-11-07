@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { MapPin, Search, ShoppingBag, User, Zap, ChevronDown } from 'lucide-react';
+import { MapPin, Search, ShoppingBag, User, Zap, ChevronDown, Sparkles } from 'lucide-react';
 import { MetroZone } from '@/types';
 
 interface NavbarProps {
@@ -13,6 +13,7 @@ interface NavbarProps {
   onOpenLocationModal: () => void;
   onOpenBasketDrawer: () => void;
   onOpenProfileDrawer: () => void;
+  onOpenSmartListModal: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -24,6 +25,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenLocationModal,
   onOpenBasketDrawer,
   onOpenProfileDrawer,
+  onOpenSmartListModal,
 }) => {
   return (
     <header className="sticky top-0 z-40 bg-white border-b border-gray-100 shadow-xs">
@@ -77,8 +79,18 @@ export const Navbar: React.FC<NavbarProps> = ({
             </div>
           </div>
 
-          {/* Right Action Icons: Mobile Location, Basket & Profile */}
-          <div className="flex items-center gap-2 sm:gap-3">
+          {/* Right Action Icons: Mobile Location, Smart List, Basket & Profile */}
+          <div className="flex items-center gap-2 sm:gap-2.5">
+            {/* Smart List Parser Trigger */}
+            <button
+              onClick={onOpenSmartListModal}
+              className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-purple-200 bg-purple-50 hover:bg-purple-100 text-purple-800 text-xs font-bold transition-all"
+              title="Paste your grocery list from WhatsApp or Notes"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-purple-600" />
+              <span>Paste List</span>
+            </button>
+
             {/* Mobile Location Icon */}
             <button
               onClick={onOpenLocationModal}

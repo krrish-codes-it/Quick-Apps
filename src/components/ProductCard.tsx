@@ -10,6 +10,7 @@ interface ProductCardProps {
   basketQuantity: number;
   onAddToCart: (product: CanonicalProductGroup) => void;
   onUpdateQuantity: (productId: string, delta: number) => void;
+  onOpenDetail?: (product: CanonicalProductGroup) => void;
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({
@@ -17,6 +18,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   basketQuantity,
   onAddToCart,
   onUpdateQuantity,
+  onOpenDetail,
 }) => {
   const lowest = product.lowestPriceOffer;
   const fastest = product.fastestDeliveryOffer;
@@ -53,12 +55,15 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         </div>
 
         {/* Product Image & Core Details */}
-        <div className="flex gap-3 mb-3">
-          <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gray-50 rounded-xl overflow-hidden shrink-0 border border-gray-100 flex items-center justify-center p-1">
+        <div 
+          onClick={() => onOpenDetail && onOpenDetail(product)}
+          className="flex gap-3 mb-3 cursor-pointer group"
+        >
+          <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gray-50 rounded-xl overflow-hidden shrink-0 border border-gray-100 flex items-center justify-center p-1 group-hover:border-amber-300 transition-colors">
             <img
               src={product.imageUrl}
               alt={product.canonicalTitle}
-              className="w-full h-full object-cover rounded-lg"
+              className="w-full h-full object-cover rounded-lg group-hover:scale-105 transition-transform"
               loading="lazy"
             />
           </div>
@@ -67,7 +72,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             <div className="text-[10px] font-bold uppercase text-amber-600 tracking-wider">
               {product.brand}
             </div>
-            <h3 className="font-bold text-sm text-gray-900 leading-snug line-clamp-2">
+            <h3 className="font-bold text-sm text-gray-900 leading-snug line-clamp-2 group-hover:text-amber-700 transition-colors">
               {product.canonicalTitle}
             </h3>
             <div className="text-xs text-gray-500 mt-0.5 font-medium">

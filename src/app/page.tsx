@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useTransition } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   BasketAnalysis,
   BasketItem,
@@ -16,7 +16,9 @@ import { ProductCard } from '@/components/ProductCard';
 import { BasketDrawer } from '@/components/BasketDrawer';
 import { LocationModal } from '@/components/LocationModal';
 import { ProfileDrawer } from '@/components/ProfileDrawer';
-import { Zap, ShieldCheck, MapPin, RefreshCw, ShoppingBag, ArrowRight } from 'lucide-react';
+import { SmartListParserModal } from '@/components/SmartListParserModal';
+import { ProductDetailModal } from '@/components/ProductDetailModal';
+import { Zap, MapPin, RefreshCw, ShoppingBag, ArrowRight, Sparkles, SlidersHorizontal, Check } from 'lucide-react';
 
 export default function HomePage() {
   const [currentZone, setCurrentZone] = useState<MetroZone>(PRESET_METRO_ZONES[0]);
@@ -24,12 +26,17 @@ export default function HomePage() {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [products, setProducts] = useState<CanonicalProductGroup[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isPending, startTransition] = useTransition();
+
+  // Sorting & Filter State
+  const [sortBy, setSortBy] = useState<'cheapest' | 'savings' | 'fastest' | 'unit_price'>('cheapest');
+  const [inStockOnly, setInStockOnly] = useState(false);
 
   // Drawers & Modals
   const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
   const [isBasketDrawerOpen, setIsBasketDrawerOpen] = useState(false);
   const [isProfileDrawerOpen, setIsProfileDrawerOpen] = useState(false);
+  const [isSmartListModalOpen, setIsSmartListModalOpen] = useState(false);
+  const [selectedProductForDetail, setSelectedProductForDetail] = useState<CanonicalProductGroup | null>(null);
 
   // User Profile
   const [profile, setProfile] = useState<UserProfileState>(SessionManager.getProfile());
@@ -75,7 +82,7 @@ export default function HomePage() {
             setLoading(false);
           }
         });
-    }, 200); // 200ms debounce
+    }, 200);
 
     return () => {
       isCancelled = true;
@@ -108,6 +115,33 @@ export default function HomePage() {
       .catch((err) => console.error('Basket analysis error:', err));
   }, [basketItems, currentZone]);
 
+  // Sorted and filtered products
+  const displayProducts = useMemo(() => {
+    let list = [...products];
+
+    if (inStockOnly) {
+      list = list.filter((p) => Object.values(p.offers).some((o) => o && o.inStock));
+    }
+
+    list.sort((a, b) => {
+      if (sortBy === 'cheapest') {
+        return a.lowestPriceOffer.sellingPrice - b.lowestPriceOffer.sellingPrice;
+      }
+      if (sortBy === 'savings') {
+        return b.priceSpread.maxSavingsRupees - a.priceSpread.maxSavingsRupees;
+      }
+      if (sortBy === 'fastest') {
+        return a.fastestDeliveryOffer.etaMinutes - b.fastestDeliveryOffer.etaMinutes;
+      }
+      if (sortBy === 'unit_price') {
+        return a.lowestPriceOffer.pricePerStandardUnit - b.lowestPriceOffer.pricePerStandardUnit;
+      }
+      return 0;
+    });
+
+    return list;
+  }, [products, sortBy, inStockOnly]);
+
   // Basket Handlers
   const handleAddToCart = (product: CanonicalProductGroup) => {
     setBasketItems((prev) => {
@@ -119,6 +153,26 @@ export default function HomePage() {
       }
       return [...prev, { canonicalProductId: product.id, canonicalProduct: product, quantity: 1 }];
     });
+  };
+
+  const handleAddMultipleToBasket = (newProducts: CanonicalProductGroup[]) => {
+    setBasketItems((prev) => {
+      const updated = [...prev];
+      for (const prod of newProducts) {
+        const existingIdx = updated.findIndex((i) => i.canonicalProductId === prod.id);
+        if (existingIdx >= 0) {
+          updated[existingIdx].quantity += 1;
+        } else {
+          updated.push({
+            canonicalProductId: prod.id,
+            canonicalProduct: prod,
+            quantity: 1,
+          });
+        }
+      }
+      return updated;
+    });
+    setIsBasketDrawerOpen(true);
   };
 
   const handleUpdateQuantity = (productId: string, delta: number) => {
@@ -173,6 +227,7 @@ export default function HomePage() {
         onOpenLocationModal={() => setIsLocationModalOpen(true)}
         onOpenBasketDrawer={() => setIsBasketDrawerOpen(true)}
         onOpenProfileDrawer={() => setIsProfileDrawerOpen(true)}
+        onOpenSmartListModal={() => setIsSmartListModalOpen(true)}
       />
 
       {/* Category Pills Bar */}
@@ -184,7 +239,7 @@ export default function HomePage() {
       {/* Main Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-5">
         {/* Serviceability & Live Zone Banner */}
-        <div className="mb-6 rounded-2xl bg-white border border-gray-200/80 p-4 shadow-2xs">
+        <div className="mb-4 rounded-2xl bg-white border border-gray-200/80 p-4 shadow-2xs">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div className="flex items-start sm:items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
@@ -236,29 +291,94 @@ export default function HomePage() {
           )}
         </div>
 
-        {/* Product Cards Section Header */}
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h1 className="text-lg font-extrabold text-gray-900">
-              {searchQuery ? `Search Results for "${searchQuery}"` : 'Essential Daily Groceries'}
-            </h1>
-            <p className="text-xs text-gray-500 mt-0.5">
-              Showing {products.length} standardized products with live unit pricing
-            </p>
+        {/* Smart Grocery List Comparison Banner */}
+        <div className="mb-6 rounded-2xl bg-gradient-to-r from-purple-900 via-indigo-900 to-slate-900 p-4 text-white shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-purple-500/30 border border-purple-400/40 flex items-center justify-center shrink-0">
+              <Sparkles className="w-5 h-5 text-purple-300" />
+            </div>
+            <div>
+              <h3 className="text-sm font-extrabold text-white">
+                Have a Shopping List on WhatsApp or Notes?
+              </h3>
+              <p className="text-xs text-purple-200 mt-0.5">
+                Paste your whole list (milk, bread, chips, eggs, etc.) to calculate the lowest cart total across apps in seconds.
+              </p>
+            </div>
           </div>
 
-          <div className="flex items-center gap-2 text-xs text-gray-500">
+          <button
+            onClick={() => setIsSmartListModalOpen(true)}
+            className="w-full sm:w-auto px-4 py-2 bg-purple-500 hover:bg-purple-400 text-gray-950 font-bold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-1.5 shrink-0"
+          >
+            <span>Paste Grocery List</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </button>
+        </div>
+
+        {/* Filter & Sorting Strip */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 bg-white p-3 rounded-xl border border-gray-100">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1">
+              <SlidersHorizontal className="w-3.5 h-3.5" />
+              <span>Sort By:</span>
+            </span>
+            <div className="flex flex-wrap gap-1.5">
+              {[
+                { id: 'cheapest', label: 'Lowest Price' },
+                { id: 'savings', label: 'Max Savings' },
+                { id: 'unit_price', label: 'Best ₹/100g' },
+                { id: 'fastest', label: 'Fastest ETA' },
+              ].map((opt) => (
+                <button
+                  key={opt.id}
+                  onClick={() => setSortBy(opt.id as any)}
+                  className={`text-xs px-2.5 py-1 rounded-lg font-semibold transition-all ${
+                    sortBy === opt.id
+                      ? 'bg-amber-100 text-amber-900 border border-amber-300'
+                      : 'bg-gray-50 hover:bg-gray-100 text-gray-600 border border-gray-200'
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <label className="flex items-center gap-1.5 text-xs text-gray-700 font-medium cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={inStockOnly}
+                onChange={(e) => setInStockOnly(e.target.checked)}
+                className="w-3.5 h-3.5 text-amber-600 rounded-sm focus:ring-amber-500"
+              />
+              <span>In-Stock Only</span>
+            </label>
+
             {loading && (
               <span className="flex items-center gap-1.5 text-amber-600 font-semibold text-xs">
                 <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                <span>Checking dark stores...</span>
+                <span className="hidden sm:inline">Checking dark stores...</span>
               </span>
             )}
           </div>
         </div>
 
+        {/* Product Cards Section Header */}
+        <div className="flex items-center justify-between mb-3 px-1">
+          <div>
+            <h1 className="text-base font-extrabold text-gray-900">
+              {searchQuery ? `Search Results for "${searchQuery}"` : 'Essential Daily Groceries'}
+            </h1>
+            <p className="text-xs text-gray-500">
+              Showing {displayProducts.length} items with live unit prices and store stock
+            </p>
+          </div>
+        </div>
+
         {/* Product Grid */}
-        {products.length === 0 && !loading ? (
+        {displayProducts.length === 0 && !loading ? (
           <div className="py-20 text-center bg-white rounded-2xl border border-gray-100 p-8">
             <div className="w-16 h-16 rounded-2xl bg-gray-100 text-gray-400 mx-auto flex items-center justify-center mb-3">
               <ShoppingBag className="w-8 h-8" />
@@ -270,7 +390,7 @@ export default function HomePage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {products.map((product) => {
+            {displayProducts.map((product) => {
               const basketItem = basketItems.find((i) => i.canonicalProductId === product.id);
               const qty = basketItem ? basketItem.quantity : 0;
 
@@ -281,6 +401,7 @@ export default function HomePage() {
                   basketQuantity={qty}
                   onAddToCart={handleAddToCart}
                   onUpdateQuantity={handleUpdateQuantity}
+                  onOpenDetail={(prod) => setSelectedProductForDetail(prod)}
                 />
               );
             })}
@@ -350,6 +471,27 @@ export default function HomePage() {
         onClose={() => setIsProfileDrawerOpen(false)}
         profile={profile}
         onUpdateProfile={setProfile}
+      />
+
+      <SmartListParserModal
+        isOpen={isSmartListModalOpen}
+        onClose={() => setIsSmartListModalOpen(false)}
+        onAddItemsToBasket={handleAddMultipleToBasket}
+        lat={currentZone.coordinates.latitude}
+        lng={currentZone.coordinates.longitude}
+      />
+
+      <ProductDetailModal
+        product={selectedProductForDetail}
+        isOpen={selectedProductForDetail !== null}
+        onClose={() => setSelectedProductForDetail(null)}
+        basketQuantity={
+          selectedProductForDetail
+            ? basketItems.find((i) => i.canonicalProductId === selectedProductForDetail.id)?.quantity || 0
+            : 0
+        }
+        onAddToCart={handleAddToCart}
+        onUpdateQuantity={handleUpdateQuantity}
       />
     </div>
   );

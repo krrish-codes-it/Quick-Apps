@@ -1,5 +1,6 @@
-// Dynamic Quick-Commerce Catalog Blueprint
-// Powers real-time search, category filtering, and multi-provider pricing engine
+// Dynamic Quick-Commerce Essential Catalog (India Metro & Tier-1/2 Coverage)
+// Powers multi-provider price comparison across Blinkit, Zepto, Swiggy Instamart,
+// Flipkart Minutes, BigBasket BB Now, JioMart Express, and Amazon Fresh Fast.
 
 export interface RawProductDefinition {
   sku: string;
@@ -14,7 +15,9 @@ export interface RawProductDefinition {
 }
 
 export const ESSENTIAL_CATALOG: RawProductDefinition[] = [
-  // --- DAIRY, BREAD & EGGS ---
+  // ==========================================
+  // 1. DAIRY, BREAD & EGGS
+  // ==========================================
   {
     sku: 'amul-taaza-500',
     baseTitle: 'Amul Taaza Toned Fresh Milk',
@@ -24,7 +27,7 @@ export const ESSENTIAL_CATALOG: RawProductDefinition[] = [
     rawPackSize: '500 ml',
     mrp: 27,
     imageUrl: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=400&q=80',
-    tags: ['milk', 'doodh', 'amul', 'taaza', 'toned', 'dairy'],
+    tags: ['milk', 'doodh', 'amul', 'taaza', 'toned', 'dairy', 'daily'],
   },
   {
     sku: 'amul-gold-500',
@@ -38,15 +41,26 @@ export const ESSENTIAL_CATALOG: RawProductDefinition[] = [
     tags: ['milk', 'doodh', 'amul', 'gold', 'full cream', 'dairy'],
   },
   {
+    sku: 'amul-cow-milk-500',
+    baseTitle: 'Amul Cow Fresh Milk Pouch',
+    brand: 'Amul',
+    category: 'Dairy, Bread & Eggs',
+    subcategory: 'Milk',
+    rawPackSize: '500 ml',
+    mrp: 28,
+    imageUrl: 'https://images.unsplash.com/photo-1528750997573-59b89d56f4f7?auto=format&fit=crop&w=400&q=80',
+    tags: ['milk', 'cow milk', 'gai ka doodh', 'amul', 'dairy'],
+  },
+  {
     sku: 'nandini-toned-500',
-    baseTitle: 'Nandini Toned Fresh Milk',
+    baseTitle: 'Nandini Toned Fresh Milk (Blue Pouch)',
     brand: 'Nandini',
     category: 'Dairy, Bread & Eggs',
     subcategory: 'Milk',
     rawPackSize: '500 ml',
     mrp: 24,
     imageUrl: 'https://images.unsplash.com/photo-1528750997573-59b89d56f4f7?auto=format&fit=crop&w=400&q=80',
-    tags: ['milk', 'nandini', 'toned', 'karnataka', 'dairy'],
+    tags: ['milk', 'nandini', 'toned', 'karnataka', 'dairy', 'bengaluru'],
   },
   {
     sku: 'mother-dairy-toned-1l',
@@ -57,18 +71,40 @@ export const ESSENTIAL_CATALOG: RawProductDefinition[] = [
     rawPackSize: '1 L',
     mrp: 54,
     imageUrl: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=400&q=80',
-    tags: ['milk', 'mother dairy', 'toned', 'delhi', 'ncr', 'dairy'],
+    tags: ['milk', 'mother dairy', 'toned', 'delhi', 'ncr', 'dairy', '1 litre'],
+  },
+  {
+    sku: 'amul-masti-dahi-400',
+    baseTitle: 'Amul Masti Spiced Pasteurized Curd Cup',
+    brand: 'Amul',
+    category: 'Dairy, Bread & Eggs',
+    subcategory: 'Curd & Yogurt',
+    rawPackSize: '400 g',
+    mrp: 35,
+    imageUrl: 'https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=400&q=80',
+    tags: ['curd', 'dahi', 'amul', 'masti', 'yogurt', 'dairy'],
   },
   {
     sku: 'amul-salted-butter-100',
-    baseTitle: 'Amul Pasteurised Salted Butter',
+    baseTitle: 'Amul Pasteurised Salted Butter Block',
     brand: 'Amul',
     category: 'Dairy, Bread & Eggs',
     subcategory: 'Butter & Cheese',
     rawPackSize: '100 g',
     mrp: 60,
     imageUrl: 'https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?auto=format&fit=crop&w=400&q=80',
-    tags: ['butter', 'makhan', 'amul', 'salted butter', 'dairy'],
+    tags: ['butter', 'makhan', 'amul', 'salted butter', 'dairy', 'toast'],
+  },
+  {
+    sku: 'amul-salted-butter-500',
+    baseTitle: 'Amul Pasteurised Salted Butter Large Pack',
+    brand: 'Amul',
+    category: 'Dairy, Bread & Eggs',
+    subcategory: 'Butter & Cheese',
+    rawPackSize: '500 g',
+    mrp: 275,
+    imageUrl: 'https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?auto=format&fit=crop&w=400&q=80',
+    tags: ['butter', 'makhan', 'amul', 'large butter', 'dairy'],
   },
   {
     sku: 'amul-malai-paneer-200',
@@ -79,7 +115,18 @@ export const ESSENTIAL_CATALOG: RawProductDefinition[] = [
     rawPackSize: '200 g',
     mrp: 95,
     imageUrl: 'https://images.unsplash.com/photo-1631452180519-c014fe946bc7?auto=format&fit=crop&w=400&q=80',
-    tags: ['paneer', 'cottage cheese', 'malai paneer', 'amul', 'dairy'],
+    tags: ['paneer', 'cottage cheese', 'malai paneer', 'amul', 'dairy', 'cooking'],
+  },
+  {
+    sku: 'milky-mist-paneer-200',
+    baseTitle: 'Milky Mist Premium Fresh Paneer',
+    brand: 'Milky Mist',
+    category: 'Dairy, Bread & Eggs',
+    subcategory: 'Paneer & Tofu',
+    rawPackSize: '200 g',
+    mrp: 110,
+    imageUrl: 'https://images.unsplash.com/photo-1631452180519-c014fe946bc7?auto=format&fit=crop&w=400&q=80',
+    tags: ['paneer', 'milky mist', 'cottage cheese', 'dairy'],
   },
   {
     sku: 'harvest-gold-white-bread-400',
@@ -90,7 +137,7 @@ export const ESSENTIAL_CATALOG: RawProductDefinition[] = [
     rawPackSize: '400 g',
     mrp: 45,
     imageUrl: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=400&q=80',
-    tags: ['bread', 'sandwich', 'white bread', 'harvest gold'],
+    tags: ['bread', 'sandwich', 'white bread', 'harvest gold', 'breakfast'],
   },
   {
     sku: 'english-oven-brown-bread-400',
@@ -101,7 +148,18 @@ export const ESSENTIAL_CATALOG: RawProductDefinition[] = [
     rawPackSize: '400 g',
     mrp: 55,
     imageUrl: 'https://images.unsplash.com/photo-1549931319-a545dcf3bc73?auto=format&fit=crop&w=400&q=80',
-    tags: ['bread', 'brown bread', 'whole wheat', 'english oven', 'healthy'],
+    tags: ['bread', 'brown bread', 'whole wheat', 'english oven', 'healthy', 'atta bread'],
+  },
+  {
+    sku: 'britannia-fruit-bread-200',
+    baseTitle: 'Britannia Sweet Fruit Bun Bread',
+    brand: 'Britannia',
+    category: 'Dairy, Bread & Eggs',
+    subcategory: 'Bread',
+    rawPackSize: '200 g',
+    mrp: 30,
+    imageUrl: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=400&q=80',
+    tags: ['bread', 'bun', 'fruit bread', 'britannia', 'tea snack'],
   },
   {
     sku: 'fresh-farm-eggs-6',
@@ -112,7 +170,7 @@ export const ESSENTIAL_CATALOG: RawProductDefinition[] = [
     rawPackSize: '6 pcs',
     mrp: 59,
     imageUrl: 'https://images.unsplash.com/photo-1516467508483-a7212febe31a?auto=format&fit=crop&w=400&q=80',
-    tags: ['eggs', 'ande', 'farm fresh', 'protein', 'eggoz'],
+    tags: ['eggs', 'ande', 'farm fresh', 'protein', 'eggoz', 'breakfast'],
   },
   {
     sku: 'fresh-farm-eggs-12',
@@ -125,8 +183,21 @@ export const ESSENTIAL_CATALOG: RawProductDefinition[] = [
     imageUrl: 'https://images.unsplash.com/photo-1506976785307-8732e854ad03?auto=format&fit=crop&w=400&q=80',
     tags: ['eggs', 'ande', '12 eggs', 'dozen', 'protein'],
   },
+  {
+    sku: 'fresh-brown-eggs-6',
+    baseTitle: 'Country Special Nutrient-Rich Brown Eggs',
+    brand: 'Generic',
+    category: 'Dairy, Bread & Eggs',
+    subcategory: 'Eggs',
+    rawPackSize: '6 pcs',
+    mrp: 85,
+    imageUrl: 'https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?auto=format&fit=crop&w=400&q=80',
+    tags: ['brown eggs', 'desi ande', 'desi eggs', 'protein'],
+  },
 
-  // --- SNACKS & MUNCHIES ---
+  // ==========================================
+  // 2. SNACKS & MUNCHIES
+  // ==========================================
   {
     sku: 'lays-india-magic-masala-50',
     baseTitle: "Lay's India's Magic Masala Potato Chips",
@@ -148,6 +219,17 @@ export const ESSENTIAL_CATALOG: RawProductDefinition[] = [
     mrp: 20,
     imageUrl: 'https://images.unsplash.com/photo-1527842891421-42eec6e703ea?auto=format&fit=crop&w=400&q=80',
     tags: ['chips', 'lays', 'cream onion', 'green lays', 'snacks'],
+  },
+  {
+    sku: 'lays-classic-salted-50',
+    baseTitle: "Lay's Classic Salted Crispy Potato Chips",
+    brand: "Lay's",
+    category: 'Snacks & Munchies',
+    subcategory: 'Chips & Crisps',
+    rawPackSize: '50 g',
+    mrp: 20,
+    imageUrl: 'https://images.unsplash.com/photo-1566478989037-eec170784d0b?auto=format&fit=crop&w=400&q=80',
+    tags: ['chips', 'lays', 'yellow lays', 'salted chips', 'classic salted'],
   },
   {
     sku: 'bingo-tedhe-medhe-90',
@@ -172,6 +254,17 @@ export const ESSENTIAL_CATALOG: RawProductDefinition[] = [
     tags: ['doritos', 'nachos', 'cheese', 'chips', 'munchies'],
   },
   {
+    sku: 'kurkure-masala-munch-80',
+    baseTitle: 'Kurkure Masala Munch Crispy Snack',
+    brand: 'Kurkure',
+    category: 'Snacks & Munchies',
+    subcategory: 'Namkeen & Puffs',
+    rawPackSize: '80 g',
+    mrp: 20,
+    imageUrl: 'https://images.unsplash.com/photo-1621996346565-e3d5d6281691?auto=format&fit=crop&w=400&q=80',
+    tags: ['kurkure', 'tedha hai par mera hai', 'namkeen', 'masala munch'],
+  },
+  {
     sku: 'haldirams-aloo-bhujia-150',
     baseTitle: "Haldiram's Nagpur Spicy Aloo Bhujia",
     brand: "Haldiram's",
@@ -182,8 +275,32 @@ export const ESSENTIAL_CATALOG: RawProductDefinition[] = [
     imageUrl: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=400&q=80',
     tags: ['haldirams', 'aloo bhujia', 'namkeen', 'sev', 'chai snacks'],
   },
+  {
+    sku: 'bikaji-bhujia-sev-200',
+    baseTitle: 'Bikaji Bikaneri Aslee Bhujia Sev',
+    brand: 'Bikaji',
+    category: 'Snacks & Munchies',
+    subcategory: 'Namkeen',
+    rawPackSize: '200 g',
+    mrp: 65,
+    imageUrl: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=400&q=80',
+    tags: ['bikaji', 'bikaneri bhujia', 'bhujia', 'namkeen', 'sev'],
+  },
+  {
+    sku: 'pringles-sour-cream-107',
+    baseTitle: 'Pringles Sour Cream & Onion Crisps Tub',
+    brand: 'Pringles',
+    category: 'Snacks & Munchies',
+    subcategory: 'Chips & Crisps',
+    rawPackSize: '107 g',
+    mrp: 115,
+    imageUrl: 'https://images.unsplash.com/photo-1566478989037-eec170784d0b?auto=format&fit=crop&w=400&q=80',
+    tags: ['pringles', 'sour cream', 'chips tub', 'imported snack'],
+  },
 
-  // --- COLD DRINKS & JUICES ---
+  // ==========================================
+  // 3. COLD DRINKS & JUICES
+  // ==========================================
   {
     sku: 'coca-cola-can-300',
     baseTitle: 'Coca-Cola Refreshing Carbonated Drink Can',
@@ -218,6 +335,17 @@ export const ESSENTIAL_CATALOG: RawProductDefinition[] = [
     tags: ['thums up', 'toofan', 'cold drink', 'cola', 'soda'],
   },
   {
+    sku: 'thums-up-bottle-750',
+    baseTitle: 'Thums Up Strong Cola PET Bottle',
+    brand: 'Thums Up',
+    category: 'Cold Drinks & Juices',
+    subcategory: 'Soft Drinks',
+    rawPackSize: '750 ml',
+    mrp: 45,
+    imageUrl: 'https://images.unsplash.com/photo-1581098365948-6a5a912b7a49?auto=format&fit=crop&w=400&q=80',
+    tags: ['thums up', 'bottle', 'cold drink', 'party pack'],
+  },
+  {
     sku: 'sprite-bottle-750',
     baseTitle: 'Sprite Lemon Lime Flavoured Soda Bottle',
     brand: 'Sprite',
@@ -239,8 +367,43 @@ export const ESSENTIAL_CATALOG: RawProductDefinition[] = [
     imageUrl: 'https://images.unsplash.com/photo-1543257580-7269da773bf5?auto=format&fit=crop&w=400&q=80',
     tags: ['red bull', 'energy drink', 'caffeine', 'wings'],
   },
+  {
+    sku: 'monster-energy-can-350',
+    baseTitle: 'Monster Energy Original Green Can',
+    brand: 'Monster',
+    category: 'Cold Drinks & Juices',
+    subcategory: 'Energy Drinks',
+    rawPackSize: '350 ml',
+    mrp: 125,
+    imageUrl: 'https://images.unsplash.com/photo-1622543925917-763c34d1a86e?auto=format&fit=crop&w=400&q=80',
+    tags: ['monster', 'energy drink', 'green monster', 'caffeine'],
+  },
+  {
+    sku: 'real-mixed-fruit-juice-1l',
+    baseTitle: 'Real Activ 100% Mixed Fruit Juice Tetra Pak',
+    brand: 'Real',
+    category: 'Cold Drinks & Juices',
+    subcategory: 'Juices',
+    rawPackSize: '1 L',
+    mrp: 130,
+    imageUrl: 'https://images.unsplash.com/photo-1600271886742-f049cd451bba?auto=format&fit=crop&w=400&q=80',
+    tags: ['juice', 'mixed fruit', 'real juice', 'breakfast drink', 'tetra pak'],
+  },
+  {
+    sku: 'bisleri-packaged-water-5l',
+    baseTitle: 'Bisleri Mineral Water Can with Handle',
+    brand: 'Bisleri',
+    category: 'Cold Drinks & Juices',
+    subcategory: 'Water',
+    rawPackSize: '5 L',
+    mrp: 75,
+    imageUrl: 'https://images.unsplash.com/photo-1548839140-29a749e1bc4e?auto=format&fit=crop&w=400&q=80',
+    tags: ['water', 'pani', 'bisleri', 'drinking water', '5 litre'],
+  },
 
-  // --- FRESH VEGETABLES & PRODUCE ---
+  // ==========================================
+  // 4. FRESH VEGETABLES & PRODUCE
+  // ==========================================
   {
     sku: 'fresh-onion-1kg',
     baseTitle: 'Fresh Cleaned Red Hybrid Onions',
@@ -250,7 +413,18 @@ export const ESSENTIAL_CATALOG: RawProductDefinition[] = [
     rawPackSize: '1 kg',
     mrp: 58,
     imageUrl: 'https://images.unsplash.com/photo-1508747703725-719777637510?auto=format&fit=crop&w=400&q=80',
-    tags: ['onion', 'pyaz', 'kanda', 'vegetables', 'fresh sabzi'],
+    tags: ['onion', 'pyaz', 'kanda', 'vegetables', 'fresh sabzi', 'cooking'],
+  },
+  {
+    sku: 'fresh-onion-2kg',
+    baseTitle: 'Fresh Red Hybrid Onions Value Pack',
+    brand: 'Generic',
+    category: 'Vegetables & Fruits',
+    subcategory: 'Vegetables',
+    rawPackSize: '2 kg',
+    mrp: 110,
+    imageUrl: 'https://images.unsplash.com/photo-1508747703725-719777637510?auto=format&fit=crop&w=400&q=80',
+    tags: ['onion', 'pyaz', '2kg onion', 'bulk vegetables'],
   },
   {
     sku: 'fresh-potato-1kg',
@@ -283,10 +457,56 @@ export const ESSENTIAL_CATALOG: RawProductDefinition[] = [
     rawPackSize: '100 g',
     mrp: 18,
     imageUrl: 'https://images.unsplash.com/photo-1599818814713-1d8f1d3c01c7?auto=format&fit=crop&w=400&q=80',
-    tags: ['coriander', 'dhaniya', 'kothmir', 'herbs', 'fresh'],
+    tags: ['coriander', 'dhaniya', 'kothmir', 'herbs', 'fresh garnish'],
+  },
+  {
+    sku: 'fresh-green-chillies-100g',
+    baseTitle: 'Spicy Fresh Green Chillies',
+    brand: 'Generic',
+    category: 'Vegetables & Fruits',
+    subcategory: 'Herbs & Seasoning',
+    rawPackSize: '100 g',
+    mrp: 15,
+    imageUrl: 'https://images.unsplash.com/photo-1588252303782-cb80119abd6d?auto=format&fit=crop&w=400&q=80',
+    tags: ['chilli', 'mirchi', 'green chillies', 'spicy sabzi'],
+  },
+  {
+    sku: 'fresh-lemon-3pcs',
+    baseTitle: 'Juicy Yellow Nimbu Lemons (Pack of 3)',
+    brand: 'Generic',
+    category: 'Vegetables & Fruits',
+    subcategory: 'Citrus',
+    rawPackSize: '3 pcs',
+    mrp: 20,
+    imageUrl: 'https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?auto=format&fit=crop&w=400&q=80',
+    tags: ['lemon', 'nimbu', 'citrus', 'salads'],
+  },
+  {
+    sku: 'fresh-banana-robusta-500g',
+    baseTitle: 'Fresh Robusta Ripe Bananas (4-5 Pcs)',
+    brand: 'Generic',
+    category: 'Vegetables & Fruits',
+    subcategory: 'Fruits',
+    rawPackSize: '500 g',
+    mrp: 35,
+    imageUrl: 'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?auto=format&fit=crop&w=400&q=80',
+    tags: ['banana', 'kela', 'fruits', 'potassium', 'breakfast'],
+  },
+  {
+    sku: 'fresh-apple-fuji-4pcs',
+    baseTitle: 'Sweet Crisp Washington Apples (Pack of 4)',
+    brand: 'Generic',
+    category: 'Vegetables & Fruits',
+    subcategory: 'Fruits',
+    rawPackSize: '4 pcs',
+    mrp: 140,
+    imageUrl: 'https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?auto=format&fit=crop&w=400&q=80',
+    tags: ['apple', 'seb', 'fruits', 'healthy snack'],
   },
 
-  // --- INSTANT & PACKAGED FOOD ---
+  // ==========================================
+  // 5. INSTANT & PACKAGED FOOD
+  // ==========================================
   {
     sku: 'maggi-masala-noodles-4pack',
     baseTitle: 'Maggi 2-Minute Masala Instant Noodles (Pack of 4)',
@@ -299,6 +519,17 @@ export const ESSENTIAL_CATALOG: RawProductDefinition[] = [
     tags: ['maggi', 'noodles', 'masala', 'nestle', 'instant food', 'quick snack'],
   },
   {
+    sku: 'maggi-masala-noodles-8pack',
+    baseTitle: 'Maggi 2-Minute Masala Instant Noodles Family Pack (8 Pack)',
+    brand: 'Maggi',
+    category: 'Instant & Packaged Food',
+    subcategory: 'Noodles',
+    rawPackSize: '560 g',
+    mrp: 110,
+    imageUrl: 'https://images.unsplash.com/photo-1612927601601-6638404737ce?auto=format&fit=crop&w=400&q=80',
+    tags: ['maggi', 'family pack', 'noodles', 'nestle', 'instant food'],
+  },
+  {
     sku: 'yippee-magic-masala-4pack',
     baseTitle: 'Sunfeast YiPPee! Magic Masala Noodles (Pack of 4)',
     brand: 'Sunfeast',
@@ -309,8 +540,32 @@ export const ESSENTIAL_CATALOG: RawProductDefinition[] = [
     imageUrl: 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=400&q=80',
     tags: ['yippee', 'noodles', 'instant food', 'snack', 'sunfeast'],
   },
+  {
+    sku: 'chings-schezwan-chutney-250',
+    baseTitle: "Ching's Secret Schezwan Chutney Dip Bottle",
+    brand: "Ching's",
+    category: 'Instant & Packaged Food',
+    subcategory: 'Sauces & Spreads',
+    rawPackSize: '250 g',
+    mrp: 85,
+    imageUrl: 'https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?auto=format&fit=crop&w=400&q=80',
+    tags: ['chings', 'schezwan', 'chutney', 'chinese', 'dip'],
+  },
+  {
+    sku: 'knorr-sweet-corn-soup-43',
+    baseTitle: 'Knorr Classic Thick Veg Sweet Corn Soup',
+    brand: 'Knorr',
+    category: 'Instant & Packaged Food',
+    subcategory: 'Soups',
+    rawPackSize: '43 g',
+    mrp: 35,
+    imageUrl: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&w=400&q=80',
+    tags: ['soup', 'knorr', 'sweet corn', 'hot soup'],
+  },
 
-  // --- COOKING STAPLES & PANTRY ---
+  // ==========================================
+  // 6. COOKING STAPLES & PANTRY
+  // ==========================================
   {
     sku: 'aashirvaad-shudh-chakki-atta-5kg',
     baseTitle: 'Aashirvaad Superior MP Shudh Chakki Atta',
@@ -321,6 +576,17 @@ export const ESSENTIAL_CATALOG: RawProductDefinition[] = [
     mrp: 265,
     imageUrl: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=400&q=80',
     tags: ['atta', 'gehu', 'chakki atta', 'flour', 'aashirvaad', 'rotis'],
+  },
+  {
+    sku: 'aashirvaad-shudh-chakki-atta-10kg',
+    baseTitle: 'Aashirvaad Superior MP Shudh Chakki Atta Jumbo',
+    brand: 'Aashirvaad',
+    category: 'Cooking Staples & Atta',
+    subcategory: 'Flours & Atta',
+    rawPackSize: '10 kg',
+    mrp: 495,
+    imageUrl: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=400&q=80',
+    tags: ['atta', '10kg atta', 'aashirvaad', 'flour'],
   },
   {
     sku: 'fortune-sunflower-oil-1l',
@@ -334,6 +600,17 @@ export const ESSENTIAL_CATALOG: RawProductDefinition[] = [
     tags: ['oil', 'tel', 'sunflower oil', 'cooking oil', 'fortune'],
   },
   {
+    sku: 'fortune-kachi-ghani-mustard-oil-1l',
+    baseTitle: 'Fortune Kachi Ghani Pure Mustard Oil Bottle',
+    brand: 'Fortune',
+    category: 'Cooking Staples & Atta',
+    subcategory: 'Edible Oils',
+    rawPackSize: '1 L',
+    mrp: 165,
+    imageUrl: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=400&q=80',
+    tags: ['mustard oil', 'sarson ka tel', 'kachi ghani', 'fortune'],
+  },
+  {
     sku: 'tata-salt-iodized-1kg',
     baseTitle: 'Tata Salt Vacuum Evaporated Iodized Salt',
     brand: 'Tata',
@@ -343,5 +620,79 @@ export const ESSENTIAL_CATALOG: RawProductDefinition[] = [
     mrp: 28,
     imageUrl: 'https://images.unsplash.com/photo-1518110925495-5fe2fda0442c?auto=format&fit=crop&w=400&q=80',
     tags: ['salt', 'namak', 'tata salt', 'iodized', 'groceries'],
+  },
+  {
+    sku: 'tata-sampann-toor-dal-1kg',
+    baseTitle: 'Tata Sampann Unpolished High-Protein Toor Dal',
+    brand: 'Tata',
+    category: 'Cooking Staples & Atta',
+    subcategory: 'Dals & Pulses',
+    rawPackSize: '1 kg',
+    mrp: 185,
+    imageUrl: 'https://images.unsplash.com/photo-1585994192701-f1a505c817ea?auto=format&fit=crop&w=400&q=80',
+    tags: ['dal', 'toor dal', 'arhar dal', 'tata sampann', 'protein'],
+  },
+  {
+    sku: 'india-gate-basmati-rice-1kg',
+    baseTitle: 'India Gate Feast Rozana Basmati Rice Pouch',
+    brand: 'Generic',
+    category: 'Cooking Staples & Atta',
+    subcategory: 'Rice & Grains',
+    rawPackSize: '1 kg',
+    mrp: 120,
+    imageUrl: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=400&q=80',
+    tags: ['rice', 'basmati rice', 'chawal', 'india gate', 'biryani rice'],
+  },
+
+  // ==========================================
+  // 7. CHOCOLATES & SWEETS
+  // ==========================================
+  {
+    sku: 'cadbury-dairy-milk-silk-60',
+    baseTitle: 'Cadbury Dairy Milk Silk Chocolate Bar',
+    brand: 'Cadbury',
+    category: 'Chocolates & Desserts',
+    subcategory: 'Chocolates',
+    rawPackSize: '60 g',
+    mrp: 85,
+    imageUrl: 'https://images.unsplash.com/photo-1549007994-cb92caebd54b?auto=format&fit=crop&w=400&q=80',
+    tags: ['chocolate', 'cadbury', 'dairy milk', 'silk', 'dessert', 'sweet'],
+  },
+  {
+    sku: 'kitkat-4finger-38',
+    baseTitle: 'Nestle KitKat 4 Finger Crispy Wafer Bar',
+    brand: 'Nestle',
+    category: 'Chocolates & Desserts',
+    subcategory: 'Chocolates',
+    rawPackSize: '38 g',
+    mrp: 35,
+    imageUrl: 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?auto=format&fit=crop&w=400&q=80',
+    tags: ['kitkat', 'nestle', 'wafer', 'chocolate', 'break'],
+  },
+
+  // ==========================================
+  // 8. CLEANING & HOUSEHOLD ESSENTIALS
+  // ==========================================
+  {
+    sku: 'vim-dishwash-gel-500',
+    baseTitle: 'Vim Lemon Dishwash Liquid Gel Bottle',
+    brand: 'Generic',
+    category: 'Cleaning & Household',
+    subcategory: 'Dishwash',
+    rawPackSize: '500 ml',
+    mrp: 125,
+    imageUrl: 'https://images.unsplash.com/photo-1585421514738-01798e348b17?auto=format&fit=crop&w=400&q=80',
+    tags: ['vim', 'dishwash', 'lemon gel', 'bartan', 'cleaning'],
+  },
+  {
+    sku: 'harpic-toilet-cleaner-1l',
+    baseTitle: 'Harpic Power Plus Original Disinfectant Toilet Cleaner',
+    brand: 'Generic',
+    category: 'Cleaning & Household',
+    subcategory: 'Bathroom Cleaning',
+    rawPackSize: '1 L',
+    mrp: 215,
+    imageUrl: 'https://images.unsplash.com/photo-1584813470613-5b1c1cad3d69?auto=format&fit=crop&w=400&q=80',
+    tags: ['harpic', 'toilet cleaner', 'bathroom', 'disinfectant'],
   },
 ];

@@ -16,6 +16,8 @@ const CATEGORIES: CategoryOption[] = [
   { id: 'Vegetables & Fruits', label: 'Fresh Produce', icon: '🥦' },
   { id: 'Instant & Packaged Food', label: 'Instant Food', icon: '🍜' },
   { id: 'Cooking Staples & Atta', label: 'Atta & Staples', icon: '🌾' },
+  { id: 'Chocolates & Desserts', label: 'Chocolates', icon: '🍫' },
+  { id: 'Cleaning & Household', label: 'Cleaning', icon: '🧼' },
 ];
 
 interface CategoryBarProps {
