@@ -1,8 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
-import { BasketAnalysis, BasketItem } from '@/types';
+import { BasketAnalysis, BasketItem, ProviderCartBreakdown } from '@/types';
 import { PROVIDER_METADATA } from '@/core/engine/geo-resolver';
+import { SavingsMeter } from './SavingsMeter';
+import { STORE_CONFIG } from './StoreBadge';
 import { X, Trash2, Plus, Minus, ArrowRight, Zap, Sparkles, AlertCircle, ShoppingBag, Share2, Copy, Check } from 'lucide-react';
 
 interface BasketDrawerProps {
@@ -13,6 +15,7 @@ interface BasketDrawerProps {
   onUpdateQuantity: (productId: string, delta: number) => void;
   onRemoveItem: (productId: string) => void;
   onClearBasket: () => void;
+  onProceedCheckout?: (store: ProviderCartBreakdown) => void;
 }
 
 export const BasketDrawer: React.FC<BasketDrawerProps> = ({
@@ -23,6 +26,7 @@ export const BasketDrawer: React.FC<BasketDrawerProps> = ({
   onUpdateQuantity,
   onRemoveItem,
   onClearBasket,
+  onProceedCheckout,
 }) => {
   const [copied, setCopied] = useState(false);
 
@@ -234,6 +238,13 @@ export const BasketDrawer: React.FC<BasketDrawerProps> = ({
                   </div>
                 )}
 
+                {/* Visual Comparative Price Meter */}
+                {analysis && analysis.singleStoreOptions.length > 0 && bestSingle && (
+                  <div className="mb-2">
+                    <SavingsMeter stores={analysis.singleStoreOptions} bestStore={bestSingle} />
+                  </div>
+                )}
+
                 {/* Landed Cost Comparison Across All 10-Min Platforms */}
                 {analysis && analysis.singleStoreOptions.length > 0 && (
                   <div className="space-y-2.5">
@@ -373,15 +384,13 @@ export const BasketDrawer: React.FC<BasketDrawerProps> = ({
                   </div>
                 </div>
 
-                <a
-                  href={bestSingle.deepLinkCheckoutUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs sm:text-sm rounded-xl shadow-xs transition-all flex items-center gap-1.5"
+                <button
+                  onClick={() => onProceedCheckout ? onProceedCheckout(bestSingle) : window.open(bestSingle.deepLinkCheckoutUrl, '_blank')}
+                  className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-extrabold text-xs sm:text-sm rounded-xl shadow-xs transition-all flex items-center gap-1.5"
                 >
                   <span>Proceed to {bestSingle.providerName}</span>
                   <ArrowRight className="w-4 h-4" />
-                </a>
+                </button>
               </div>
             </div>
           )}

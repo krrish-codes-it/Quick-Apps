@@ -1,9 +1,10 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { CanonicalProductGroup, QuickCommerceProvider } from '@/types';
 import { PROVIDER_METADATA } from '@/core/engine/geo-resolver';
-import { Star, Zap, Plus, Minus, Check, ExternalLink } from 'lucide-react';
+import { StoreBadge, STORE_CONFIG } from './StoreBadge';
+import { Star, Zap, Plus, Minus, ExternalLink, Heart, Sparkles } from 'lucide-react';
 
 interface ProductCardProps {
   product: CanonicalProductGroup;
@@ -11,6 +12,8 @@ interface ProductCardProps {
   onAddToCart: (product: CanonicalProductGroup) => void;
   onUpdateQuantity: (productId: string, delta: number) => void;
   onOpenDetail?: (product: CanonicalProductGroup) => void;
+  isFavorite?: boolean;
+  onToggleFavorite?: (productId: string) => void;
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({
@@ -19,10 +22,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   onAddToCart,
   onUpdateQuantity,
   onOpenDetail,
+  isFavorite = false,
+  onToggleFavorite,
 }) => {
+  const [favorite, setFavorite] = useState(isFavorite);
   const lowest = product.lowestPriceOffer;
-  const fastest = product.fastestDeliveryOffer;
   const lowestMeta = PROVIDER_METADATA[lowest.provider];
+  const lowestConf = STORE_CONFIG[lowest.provider];
 
   const providerList: QuickCommerceProvider[] = [
     'blinkit',
@@ -34,72 +40,94 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     'amazon_now',
   ];
 
-  return (
-    <div className="bg-white rounded-2xl border border-gray-100 hover:border-gray-300 transition-all p-4 shadow-xs hover:shadow-md flex flex-col justify-between">
-      <div>
-        {/* Top Badges: Savings & Unit Price */}
-        <div className="flex items-center justify-between mb-2">
-          {product.priceSpread.maxSavingsRupees > 0 ? (
-            <span className="text-[11px] font-extrabold px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200">
-              Save up to ₹{product.priceSpread.maxSavingsRupees} ({product.priceSpread.maxSavingsPercentage}%)
-            </span>
-          ) : (
-            <span className="text-[11px] font-semibold text-gray-500">
-              Standard Price
-            </span>
-          )}
+  const handleFavoriteClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const next = !favorite;
+    setFavorite(next);
+    if (onToggleFavorite) onToggleFavorite(product.id);
+  };
 
-          <span className="text-[11px] font-medium text-gray-500 bg-gray-50 px-2 py-0.5 rounded-md border border-gray-100">
-            {lowest.standardUnitLabel}
-          </span>
+  // Max discount calculation across any provider
+  const maxDiscountPct = Math.max(
+    ...Object.values(product.offers)
+      .filter((o) => o && o.inStock)
+      .map((o) => o?.discountPercentage || 0)
+  );
+
+  return (
+    <div className="group relative bg-white rounded-3xl border border-gray-100 hover:border-gray-300 hover:shadow-lg transition-all duration-300 p-4 sm:p-5 flex flex-col justify-between">
+      <div>
+        {/* Top Floating Strip: Discount + Unit Price + Wishlist */}
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-1.5">
+            {maxDiscountPct > 0 ? (
+              <span className="text-[10px] font-black tracking-tight px-2 py-0.5 rounded-full bg-red-500 text-white shadow-2xs">
+                {maxDiscountPct}% OFF
+              </span>
+            ) : null}
+
+            <span className="text-[11px] font-bold text-gray-500 bg-gray-50 px-2 py-0.5 rounded-full border border-gray-200/80">
+              {lowest.standardUnitLabel}
+            </span>
+          </div>
+
+          <button
+            onClick={handleFavoriteClick}
+            className={`p-1.5 rounded-full transition-colors ${
+              favorite ? 'text-red-500 bg-red-50' : 'text-gray-300 hover:text-gray-500 hover:bg-gray-50'
+            }`}
+            title="Save to favorites"
+          >
+            <Heart className={`w-4 h-4 ${favorite ? 'fill-red-500' : ''}`} />
+          </button>
         </div>
 
-        {/* Product Image & Core Details */}
-        <div 
+        {/* Product Image & Title Area */}
+        <div
           onClick={() => onOpenDetail && onOpenDetail(product)}
-          className="flex gap-3 mb-3 cursor-pointer group"
+          className="flex gap-3.5 mb-3.5 cursor-pointer"
         >
-          <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gray-50 rounded-xl overflow-hidden shrink-0 border border-gray-100 flex items-center justify-center p-1 group-hover:border-amber-300 transition-colors">
+          <div className="w-22 h-22 sm:w-26 sm:h-26 bg-gradient-to-tr from-gray-50 to-gray-100 rounded-2xl overflow-hidden shrink-0 border border-gray-100 flex items-center justify-center p-2 group-hover:border-amber-300 transition-colors">
             <img
               src={product.imageUrl}
               alt={product.canonicalTitle}
-              className="w-full h-full object-cover rounded-lg group-hover:scale-105 transition-transform"
+              className="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-300"
               loading="lazy"
             />
           </div>
 
           <div className="flex-1 min-w-0">
-            <div className="text-[10px] font-bold uppercase text-amber-600 tracking-wider">
+            <div className="text-[10px] font-extrabold uppercase text-amber-600 tracking-wider">
               {product.brand}
             </div>
-            <h3 className="font-bold text-sm text-gray-900 leading-snug line-clamp-2 group-hover:text-amber-700 transition-colors">
+            <h3 className="font-extrabold text-sm text-gray-900 leading-snug line-clamp-2 group-hover:text-amber-600 transition-colors">
               {product.canonicalTitle}
             </h3>
-            <div className="text-xs text-gray-500 mt-0.5 font-medium">
+            <div className="text-xs text-gray-500 mt-0.5 font-semibold">
               Pack: {product.displayPackSize}
             </div>
 
-            <div className="flex items-center gap-1.5 mt-1.5 text-xs text-gray-600">
-              <div className="flex items-center text-amber-500">
-                <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                <span className="font-bold ml-1 text-gray-800">{product.rating}</span>
+            <div className="flex items-center gap-1.5 mt-2 text-xs">
+              <div className="flex items-center text-amber-500 font-bold bg-amber-50 px-1.5 py-0.5 rounded-md border border-amber-200/60">
+                <Star className="w-3 h-3 fill-amber-400 text-amber-400 mr-1" />
+                <span>{product.rating}</span>
               </div>
               <span className="text-gray-300">•</span>
-              <span className="text-[11px] text-gray-400">({product.ratingCount} ratings)</span>
+              <span className="text-[11px] text-gray-400 font-medium">({product.ratingCount} reviews)</span>
             </div>
           </div>
         </div>
 
-        {/* Hero Best Price Strip */}
-        <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/80 rounded-xl p-2.5 mb-3">
+        {/* Hero Best Price Banner */}
+        <div className="rounded-2xl bg-gradient-to-r from-amber-50 via-orange-50 to-yellow-50 border border-amber-200/80 p-3 mb-3.5 shadow-2xs">
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-[10px] font-bold text-amber-900 uppercase tracking-wide flex items-center gap-1">
-                <span>Best Available Price</span>
-                <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              <div className="text-[9px] font-black uppercase tracking-wider text-amber-900 flex items-center gap-1">
+                <span>Lowest Price Found</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
               </div>
               <div className="flex items-baseline gap-1.5 mt-0.5">
-                <span className="text-lg font-extrabold text-gray-900">
+                <span className="text-xl font-black text-gray-950">
                   ₹{lowest.sellingPrice}
                 </span>
                 {lowest.mrp > lowest.sellingPrice && (
@@ -107,84 +135,50 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                     ₹{lowest.mrp}
                   </span>
                 )}
-                <span className="text-xs font-semibold text-emerald-700">
+                <span className="text-xs font-bold text-emerald-700">
                   on {lowestMeta.name}
                 </span>
               </div>
             </div>
 
             <div className="text-right">
-              <div className="flex items-center gap-1 text-[11px] font-bold text-gray-700 bg-white/80 px-2 py-1 rounded-lg border border-amber-200">
-                <Zap className="w-3 h-3 text-amber-500 fill-amber-500" />
+              <div className="text-[11px] font-extrabold text-gray-800 bg-white/90 px-2.5 py-1 rounded-xl border border-amber-200 flex items-center gap-1 shadow-2xs">
+                <Zap className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
                 <span>{lowest.etaMinutes} mins</span>
               </div>
+              {product.priceSpread.maxSavingsRupees > 0 && (
+                <div className="text-[10px] font-bold text-emerald-700 mt-1">
+                  Save ₹{product.priceSpread.maxSavingsRupees}
+                </div>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Multi-App Provider Comparison Table */}
-        <div className="space-y-1.5 mb-3">
-          <div className="text-[11px] font-bold text-gray-500 uppercase tracking-wider px-1">
-            Live Prices Across 10-Min Delivery Apps
+        {/* Live Multi-App Comparison Grid with Authentic Store Badges */}
+        <div className="space-y-1.5 mb-3.5">
+          <div className="flex items-center justify-between px-0.5">
+            <span className="text-[10px] font-extrabold uppercase text-gray-400 tracking-wider">
+              Live App Prices (10m Delivery)
+            </span>
+            <span className="text-[9px] text-gray-400 font-medium">Updated live</span>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
             {providerList.map((providerKey) => {
               const offer = product.offers[providerKey];
-              const meta = PROVIDER_METADATA[providerKey];
-              if (!offer) {
-                return (
-                  <div
-                    key={providerKey}
-                    className="p-1.5 rounded-lg border border-dashed border-gray-200 bg-gray-50/50 text-[11px] text-gray-400 flex items-center justify-between opacity-60"
-                  >
-                    <span>{meta.name}</span>
-                    <span className="text-[10px]">Unserviceable</span>
-                  </div>
-                );
-              }
-
-              const isBest = offer.id === lowest.id;
-
               return (
-                <div
+                <StoreBadge
                   key={providerKey}
-                  className={`p-1.5 rounded-lg border text-[11px] flex items-center justify-between transition-colors ${
-                    isBest
-                      ? 'border-emerald-400 bg-emerald-50/60 font-semibold'
-                      : offer.inStock
-                      ? 'border-gray-200 bg-white'
-                      : 'border-red-100 bg-red-50/40 opacity-70'
-                  }`}
-                >
-                  <div className="truncate pr-1">
-                    <span className="block truncate font-medium text-gray-800">
-                      {meta.name}
-                    </span>
-                    <span className="text-[10px] text-gray-400">
-                      ⚡️ {offer.etaMinutes}m
-                    </span>
-                  </div>
-
-                  <div className="text-right shrink-0">
-                    {offer.inStock ? (
-                      <div>
-                        <div className={`font-bold ${isBest ? 'text-emerald-700' : 'text-gray-900'}`}>
-                          ₹{offer.sellingPrice}
-                        </div>
-                        {isBest && (
-                          <span className="text-[9px] font-bold text-emerald-600 uppercase block">
-                            Lowest
-                          </span>
-                        )}
-                      </div>
-                    ) : (
-                      <span className="text-[10px] font-semibold text-red-600">
-                        OOS
-                      </span>
-                    )}
-                  </div>
-                </div>
+                  provider={providerKey}
+                  price={offer?.sellingPrice}
+                  mrp={offer?.mrp}
+                  etaMinutes={offer?.etaMinutes}
+                  isLowest={offer?.id === lowest.id}
+                  inStock={offer?.inStock ?? false}
+                  size="sm"
+                  onClick={() => onOpenDetail && onOpenDetail(product)}
+                />
               );
             })}
           </div>
@@ -192,12 +186,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       </div>
 
       {/* Cart Action Button / Quantity Stepper */}
-      <div className="pt-2 border-t border-gray-100 flex items-center justify-between gap-3">
+      <div className="pt-3 border-t border-gray-100 flex items-center justify-between gap-3">
         <a
           href={lowest.deepLinkUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-xs text-amber-700 hover:text-amber-800 font-semibold flex items-center gap-1 hover:underline"
+          className="text-xs text-amber-700 hover:text-amber-800 font-bold flex items-center gap-1 hover:underline"
           title={`Open directly on ${lowestMeta.name}`}
         >
           <span>Order on {lowestMeta.name}</span>
@@ -207,25 +201,25 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         {basketQuantity === 0 ? (
           <button
             onClick={() => onAddToCart(product)}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-gray-950 font-bold text-xs rounded-xl shadow-xs transition-all"
+            className="flex items-center gap-1.5 px-4 py-2 bg-amber-500 hover:bg-amber-600 active:scale-95 text-gray-950 font-black text-xs rounded-xl shadow-xs transition-all"
           >
-            <Plus className="w-3.5 h-3.5" />
-            <span>Add to Basket</span>
+            <Plus className="w-3.5 h-3.5 stroke-[3]" />
+            <span>ADD</span>
           </button>
         ) : (
-          <div className="flex items-center bg-gray-900 text-white rounded-xl px-1.5 py-1 gap-2 shadow-xs">
+          <div className="flex items-center bg-gray-950 text-white rounded-xl px-1.5 py-1 gap-2 shadow-xs">
             <button
               onClick={() => onUpdateQuantity(product.id, -1)}
-              className="p-1 hover:bg-gray-800 rounded-lg transition-colors"
+              className="p-1 hover:bg-gray-800 active:scale-90 rounded-lg transition-transform"
             >
-              <Minus className="w-3 h-3" />
+              <Minus className="w-3 h-3 stroke-[3]" />
             </button>
-            <span className="text-xs font-bold px-1">{basketQuantity}</span>
+            <span className="text-xs font-black px-1.5">{basketQuantity}</span>
             <button
               onClick={() => onUpdateQuantity(product.id, 1)}
-              className="p-1 hover:bg-gray-800 rounded-lg transition-colors"
+              className="p-1 hover:bg-gray-800 active:scale-90 rounded-lg transition-transform"
             >
-              <Plus className="w-3 h-3" />
+              <Plus className="w-3 h-3 stroke-[3]" />
             </button>
           </div>
         )}
