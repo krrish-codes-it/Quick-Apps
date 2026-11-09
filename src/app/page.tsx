@@ -7,12 +7,14 @@ import {
   CanonicalProductGroup,
   MetroZone,
   ProviderCartBreakdown,
+  StoreServiceability,
   UserProfileState,
 } from '@/types';
 import { PRESET_METRO_ZONES } from '@/core/engine/geo-resolver';
 import { SessionManager } from '@/core/profile/session-manager';
 import { Navbar } from '@/components/Navbar';
 import { CategoryBar } from '@/components/CategoryBar';
+import { SubcategoryPills } from '@/components/SubcategoryPills';
 import { ProductCard } from '@/components/ProductCard';
 import { BasketDrawer } from '@/components/BasketDrawer';
 import { LocationModal } from '@/components/LocationModal';
@@ -20,6 +22,9 @@ import { ProfileDrawer } from '@/components/ProfileDrawer';
 import { SmartListParserModal } from '@/components/SmartListParserModal';
 import { ProductDetailModal } from '@/components/ProductDetailModal';
 import { CheckoutModal } from '@/components/CheckoutModal';
+import { DarkStoreRadarModal } from '@/components/DarkStoreRadarModal';
+import { SavedBasketsModal } from '@/components/SavedBasketsModal';
+import { ToastNotification, ToastMessage } from '@/components/ToastNotification';
 import { STORE_CONFIG } from '@/components/StoreBadge';
 import {
   Zap,
@@ -35,6 +40,8 @@ import {
   Heart,
   Store,
   Layers,
+  Radio,
+  Bookmark,
 } from 'lucide-react';
 
 const POPULAR_BRANDS = [
@@ -58,6 +65,7 @@ export default function HomePage() {
   const [currentZone, setCurrentZone] = useState<MetroZone>(PRESET_METRO_ZONES[0]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedSubcategory, setSelectedSubcategory] = useState('all');
   const [selectedBrand, setSelectedBrand] = useState('All Brands');
   const [priceRange, setPriceRange] = useState<'all' | 'under50' | '50-150' | '150plus'>('all');
   const [products, setProducts] = useState<CanonicalProductGroup[]>([]);
@@ -74,7 +82,12 @@ export default function HomePage() {
   const [isBasketDrawerOpen, setIsBasketDrawerOpen] = useState(false);
   const [isProfileDrawerOpen, setIsProfileDrawerOpen] = useState(false);
   const [isSmartListModalOpen, setIsSmartListModalOpen] = useState(false);
+  const [isRadarModalOpen, setIsRadarModalOpen] = useState(false);
+  const [isSavedBasketsModalOpen, setIsSavedBasketsModalOpen] = useState(false);
   const [selectedProductForDetail, setSelectedProductForDetail] = useState<CanonicalProductGroup | null>(null);
+
+  // Toast State
+  const [activeToast, setActiveToast] = useState<ToastMessage | null>(null);
 
   // Checkout Modal State
   const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
@@ -87,7 +100,8 @@ export default function HomePage() {
   const [basketItems, setBasketItems] = useState<BasketItem[]>([]);
   const [basketAnalysis, setBasketAnalysis] = useState<BasketAnalysis | null>(null);
 
-  // Serviceability stats
+  // Serviceability & Dark Stores Telemetry
+  const [darkStores, setDarkStores] = useState<StoreServiceability[]>([]);
   const [activeServicesCount, setActiveServicesCount] = useState(7);
   const [isQuickCommerceAvailable, setIsQuickCommerceAvailable] = useState(true);
 
@@ -107,6 +121,12 @@ export default function HomePage() {
       } catch (e) {}
       return next;
     });
+  };
+
+  // Reset subcategory when main category changes
+  const handleCategorySelect = (catId: string) => {
+    setSelectedCategory(catId);
+    setSelectedSubcategory('all');
   };
 
   // Fetch products whenever zone, search query, or category changes
@@ -133,6 +153,9 @@ export default function HomePage() {
             setProducts(data.canonicalProducts || []);
             setActiveServicesCount(data.geo?.activeServiceCount || 0);
             setIsQuickCommerceAvailable(data.geo?.isQuickCommerceAvailable ?? true);
+            if (data.geo?.services) {
+              setDarkStores(data.geo.services);
+            }
             setLoading(false);
           }
         })
@@ -175,9 +198,20 @@ export default function HomePage() {
       .catch((err) => console.error('Basket analysis error:', err));
   }, [basketItems, currentZone]);
 
-  // Sorted and filtered products
+  // Filter and sort products
   const displayProducts = useMemo(() => {
     let list = [...products];
+
+    // Filter by Subcategory
+    if (selectedSubcategory !== 'all') {
+      list = list.filter((p) => {
+        const sub = (p as any).subcategory;
+        return (
+          (sub && sub.toLowerCase().includes(selectedSubcategory.toLowerCase())) ||
+          p.canonicalTitle.toLowerCase().includes(selectedSubcategory.toLowerCase())
+        );
+      });
+    }
 
     // Filter by Brand
     if (selectedBrand !== 'All Brands') {
@@ -223,10 +257,13 @@ export default function HomePage() {
     });
 
     return list;
-  }, [products, selectedBrand, priceRange, inStockOnly, showFavoritesOnly, favoriteIds, sortBy]);
+  }, [products, selectedSubcategory, selectedBrand, priceRange, inStockOnly, showFavoritesOnly, favoriteIds, sortBy]);
 
-  // Basket Handlers
+  // Basket Handlers with Toast notification
   const handleAddToCart = (product: CanonicalProductGroup) => {
+    const lowest = product.lowestPriceOffer;
+    const storeConf = STORE_CONFIG[lowest.provider];
+
     setBasketItems((prev) => {
       const existing = prev.find((i) => i.canonicalProductId === product.id);
       if (existing) {
@@ -235,6 +272,16 @@ export default function HomePage() {
         );
       }
       return [...prev, { canonicalProductId: product.id, canonicalProduct: product, quantity: 1 }];
+    });
+
+    // Fire toast
+    setActiveToast({
+      id: String(Date.now()),
+      title: `Added: ${product.canonicalTitle}`,
+      subtitle: `${product.displayPackSize} added to basket`,
+      providerName: storeConf.shortName,
+      price: lowest.sellingPrice,
+      etaMinutes: lowest.etaMinutes,
     });
   };
 
@@ -296,6 +343,7 @@ export default function HomePage() {
             displayName: `GPS Pin (${coords.latitude.toFixed(3)}, ${coords.longitude.toFixed(3)})`,
             coordinates: coords,
           });
+          if (res.data.services) setDarkStores(res.data.services);
         }
       })
       .catch((e) => console.error('GPS Resolve error:', e));
@@ -307,6 +355,13 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-gray-50/70 text-gray-900 flex flex-col font-sans">
+      {/* Toast Notification */}
+      <ToastNotification
+        toast={activeToast}
+        onClose={() => setActiveToast(null)}
+        onViewBasket={() => setIsBasketDrawerOpen(true)}
+      />
+
       {/* Navbar */}
       <Navbar
         currentZone={currentZone}
@@ -323,15 +378,20 @@ export default function HomePage() {
       {/* Category Pills Bar */}
       <CategoryBar
         selectedCategory={selectedCategory}
-        onSelectCategory={setSelectedCategory}
+        onSelectCategory={handleCategorySelect}
+      />
+
+      {/* Nested Subcategory Pills Bar */}
+      <SubcategoryPills
+        category={selectedCategory}
+        selectedSubcategory={selectedSubcategory}
+        onSelectSubcategory={setSelectedSubcategory}
       />
 
       {/* Main Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-5">
         {/* Top Hero Brand & Savings Live Bar */}
         <div className="mb-6 rounded-3xl bg-gradient-to-r from-amber-500 via-orange-500 to-yellow-400 p-5 sm:p-7 shadow-lg text-gray-950 relative overflow-hidden">
-          <div className="absolute right-0 top-0 bottom-0 w-1/3 opacity-10 bg-repeat bg-center pointer-events-none" />
-
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5 relative z-10">
             <div className="max-w-2xl">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/10 backdrop-blur-xs text-gray-950 text-xs font-black uppercase tracking-wider mb-2">
@@ -350,18 +410,26 @@ export default function HomePage() {
             <div className="flex flex-wrap items-center gap-2.5 shrink-0">
               <button
                 onClick={() => setIsSmartListModalOpen(true)}
-                className="px-4 py-2.5 bg-gray-950 hover:bg-black text-white text-xs sm:text-sm font-extrabold rounded-2xl shadow-md transition-all flex items-center gap-2"
+                className="px-4 py-2.5 bg-gray-950 hover:bg-black active:scale-95 text-white text-xs sm:text-sm font-extrabold rounded-2xl shadow-md transition-all flex items-center gap-2"
               >
                 <Sparkles className="w-4 h-4 text-amber-400" />
                 <span>Paste Grocery List</span>
               </button>
 
               <button
-                onClick={() => setIsLocationModalOpen(true)}
-                className="px-4 py-2.5 bg-white/90 hover:bg-white text-gray-950 text-xs sm:text-sm font-extrabold rounded-2xl shadow-sm transition-all flex items-center gap-1.5"
+                onClick={() => setIsSavedBasketsModalOpen(true)}
+                className="px-4 py-2.5 bg-purple-700 hover:bg-purple-800 active:scale-95 text-white text-xs sm:text-sm font-extrabold rounded-2xl shadow-md transition-all flex items-center gap-1.5"
               >
-                <MapPin className="w-4 h-4 text-amber-600" />
-                <span>{currentZone.city}</span>
+                <Bookmark className="w-4 h-4 text-purple-200" />
+                <span>1-Click Bundles</span>
+              </button>
+
+              <button
+                onClick={() => setIsRadarModalOpen(true)}
+                className="px-4 py-2.5 bg-white/90 hover:bg-white active:scale-95 text-gray-950 text-xs sm:text-sm font-extrabold rounded-2xl shadow-sm transition-all flex items-center gap-1.5"
+              >
+                <Radio className="w-4 h-4 text-emerald-600 animate-pulse" />
+                <span>Dark Store Radar</span>
               </button>
             </div>
           </div>
@@ -394,9 +462,13 @@ export default function HomePage() {
             <div>
               <div className="text-xs font-extrabold text-gray-900 flex items-center gap-2">
                 <span>{currentZone.displayName}</span>
-                <span className="text-[10px] font-bold px-2 py-0.2 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
-                  {activeServicesCount} Dark Stores Active
-                </span>
+                <button
+                  onClick={() => setIsRadarModalOpen(true)}
+                  className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-100 hover:bg-emerald-200 text-emerald-800 border border-emerald-300 transition-colors flex items-center gap-1"
+                >
+                  <Radio className="w-2.5 h-2.5 text-emerald-600" />
+                  <span>{activeServicesCount} Dark Stores Active (View Radar)</span>
+                </button>
               </div>
               <div className="text-[11px] text-gray-500">
                 Pincode & GPS mapped to nearest 10-minute micro-warehouses
@@ -537,6 +609,8 @@ export default function HomePage() {
                 ? `Search: "${searchQuery}"`
                 : selectedBrand !== 'All Brands'
                 ? `${selectedBrand} Essentials`
+                : selectedSubcategory !== 'all'
+                ? `${selectedSubcategory} Items`
                 : selectedCategory !== 'all'
                 ? selectedCategory
                 : 'Essential Daily Groceries'}
@@ -560,6 +634,7 @@ export default function HomePage() {
             <button
               onClick={() => {
                 setSelectedBrand('All Brands');
+                setSelectedSubcategory('all');
                 setPriceRange('all');
                 setSelectedCategory('all');
                 setSearchQuery('');
@@ -675,6 +750,21 @@ export default function HomePage() {
         onAddItemsToBasket={handleAddMultipleToBasket}
         lat={currentZone.coordinates.latitude}
         lng={currentZone.coordinates.longitude}
+      />
+
+      <DarkStoreRadarModal
+        isOpen={isRadarModalOpen}
+        onClose={() => setIsRadarModalOpen(false)}
+        services={darkStores}
+        zoneName={currentZone.zoneName}
+        cityName={currentZone.city}
+      />
+
+      <SavedBasketsModal
+        isOpen={isSavedBasketsModalOpen}
+        onClose={() => setIsSavedBasketsModalOpen(false)}
+        allProducts={products}
+        onLoadPreset={handleAddMultipleToBasket}
       />
 
       <ProductDetailModal

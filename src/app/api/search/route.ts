@@ -59,6 +59,7 @@ export async function GET(request: NextRequest) {
         zone: geoResolution.closestZone,
         isQuickCommerceAvailable: geoResolution.isQuickCommerceAvailable,
         activeServiceCount: geoResolution.activeServiceCount,
+        services: geoResolution.services,
       },
       totalItemsFound: canonicalProducts.length,
       canonicalProducts,
